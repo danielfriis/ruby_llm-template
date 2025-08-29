@@ -112,7 +112,7 @@ module RubyLlm
         end
 
         if schema_class
-          return schema_class.new
+          return schema_class
         end
 
         # 3. If nothing worked, provide detailed error
