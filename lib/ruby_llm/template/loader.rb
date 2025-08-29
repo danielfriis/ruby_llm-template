@@ -73,61 +73,26 @@ module RubyLlm
         return nil unless File.exist?(schema_file)
         return nil unless defined?(RubyLLM::Schema)
 
-        # Load the schema file in a clean context
         schema_content = File.read(schema_file)
-
-        # Create a context for evaluating the schema
         schema_context = create_schema_context(context)
 
-        # Evaluate the schema file (this might define classes/modules)
+        # Evaluate the schema file
         result = schema_context.instance_eval(schema_content, schema_file.to_s)
 
-        # Try different ways to find the schema:
-        
-        # 1. If the result is already a valid schema class or instance
-        if result.is_a?(Class) && result < RubyLLM::Schema
-          return result.new
-        elsif result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
+        # Handle different patterns:
+        # 1. RubyLLM::Schema.create { } pattern - returns instance
+        if result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
           return result
         end
 
-        # 2. Look for a schema class using naming conventions
-        # Convert template name to expected class name (e.g., "identify_brand_from_transaction" -> "IdentifyBrandFromTransaction::Schema")
+        # 2. Class definition pattern - look for TemplateClass::Schema
         template_class_name = @template_name.to_s.split('_').map(&:capitalize).join
-        possible_class_names = [
-          "#{template_class_name}::Schema",
-          "#{template_class_name}Schema",
-          template_class_name
-        ]
+        schema_class_name = "#{template_class_name}::Schema"
+        
+        schema_class = constantize_safe(schema_class_name)
+        return schema_class if schema_class
 
-        schema_class = nil
-        possible_class_names.each do |class_name|
-          begin
-            schema_class = class_name.constantize
-            break if schema_class.is_a?(Class) && schema_class < RubyLLM::Schema
-            schema_class = nil
-          rescue NameError
-            # Class doesn't exist, try next one
-          end
-        end
-
-        if schema_class
-          return schema_class
-        end
-
-        # 3. If nothing worked, provide detailed error
-        result_info = if result.nil?
-          "nil"
-        elsif result.is_a?(Class)
-          "Class: #{result} (< RubyLLM::Schema: #{result < RubyLLM::Schema if result.respond_to?(:<)})"
-        else
-          "Instance: #{result.class} (is_a?(RubyLLM::Schema): #{result.is_a?(RubyLLM::Schema)}, responds_to?(:to_json_schema): #{result.respond_to?(:to_json_schema)})"
-        end
-
-        raise Error, "Schema file must return a RubyLLM::Schema class or instance, or define one of: #{possible_class_names.join(', ')}. Got: #{result_info}"
-      rescue Error => e
-        # Re-raise our own errors as-is to preserve the detailed message
-        raise e
+        raise Error, "Schema file must return a RubyLLM::Schema instance or define class '#{schema_class_name}'"
       rescue => e
         raise Error, "Failed to load schema from '#{@template_name}/schema.rb': #{e.message}"
       end
@@ -158,16 +123,23 @@ module RubyLlm
       end
 
       def create_schema_context(context)
-        # Create an object that has access to context variables and RubyLLM::Schema methods
         schema_context = Object.new
-
-        # Add context variables as instance variables and methods
         context.each do |key, value|
           schema_context.instance_variable_set("@#{key}", value)
           schema_context.define_singleton_method(key) { value }
         end
-
         schema_context
+      end
+
+      def constantize_safe(class_name)
+        if defined?(Rails)
+          class_name.constantize
+        else
+          # Simple constantize for non-Rails environments
+          Object.const_get(class_name)
+        end
+      rescue NameError
+        nil
       end
     end
   end
