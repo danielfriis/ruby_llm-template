@@ -79,10 +79,43 @@ module RubyLlm
         # Create a context for evaluating the schema
         schema_context = create_schema_context(context)
 
-        # Evaluate the schema file and return the result
+        # Evaluate the schema file (this might define classes/modules)
         result = schema_context.instance_eval(schema_content, schema_file.to_s)
 
-        # Debug: Log what we got back from evaluation
+        # Try different ways to find the schema:
+        
+        # 1. If the result is already a valid schema class or instance
+        if result.is_a?(Class) && result < RubyLLM::Schema
+          return result.new
+        elsif result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
+          return result
+        end
+
+        # 2. Look for a schema class using naming conventions
+        # Convert template name to expected class name (e.g., "identify_brand_from_transaction" -> "IdentifyBrandFromTransaction::Schema")
+        template_class_name = @template_name.to_s.split('_').map(&:capitalize).join
+        possible_class_names = [
+          "#{template_class_name}::Schema",
+          "#{template_class_name}Schema",
+          template_class_name
+        ]
+
+        schema_class = nil
+        possible_class_names.each do |class_name|
+          begin
+            schema_class = class_name.constantize
+            break if schema_class.is_a?(Class) && schema_class < RubyLLM::Schema
+            schema_class = nil
+          rescue NameError
+            # Class doesn't exist, try next one
+          end
+        end
+
+        if schema_class
+          return schema_class.new
+        end
+
+        # 3. If nothing worked, provide detailed error
         result_info = if result.nil?
           "nil"
         elsif result.is_a?(Class)
@@ -91,14 +124,7 @@ module RubyLlm
           "Instance: #{result.class} (is_a?(RubyLLM::Schema): #{result.is_a?(RubyLLM::Schema)}, responds_to?(:to_json_schema): #{result.respond_to?(:to_json_schema)})"
         end
 
-        # If the result is a class that inherits from RubyLLM::Schema, instantiate it
-        if result.is_a?(Class) && result < RubyLLM::Schema
-          result.new
-        elsif result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
-          result
-        else
-          raise Error, "Schema file must return a RubyLLM::Schema class or instance. Got: #{result_info}"
-        end
+        raise Error, "Schema file must return a RubyLLM::Schema class or instance, or define one of: #{possible_class_names.join(', ')}. Got: #{result_info}"
       rescue Error => e
         # Re-raise our own errors as-is to preserve the detailed message
         raise e
