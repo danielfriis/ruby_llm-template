@@ -85,7 +85,7 @@ module RubyLlm
         # If the result is a class that inherits from RubyLLM::Schema, instantiate it
         if result.is_a?(Class) && result < RubyLLM::Schema
           result.new
-        elsif result.respond_to?(:to_json_schema)
+        elsif result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
           result
         else
           raise Error, "Schema file must return a RubyLLM::Schema class or instance"
