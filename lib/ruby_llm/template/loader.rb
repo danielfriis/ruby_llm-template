@@ -82,13 +82,22 @@ module RubyLlm
         # Evaluate the schema file and return the result
         result = schema_context.instance_eval(schema_content, schema_file.to_s)
 
+        # Debug: Log what we got back from evaluation
+        result_info = if result.nil?
+          "nil"
+        elsif result.is_a?(Class)
+          "Class: #{result} (< RubyLLM::Schema: #{result < RubyLLM::Schema if result.respond_to?(:<)})"
+        else
+          "Instance: #{result.class} (is_a?(RubyLLM::Schema): #{result.is_a?(RubyLLM::Schema)}, responds_to?(:to_json_schema): #{result.respond_to?(:to_json_schema)})"
+        end
+
         # If the result is a class that inherits from RubyLLM::Schema, instantiate it
         if result.is_a?(Class) && result < RubyLLM::Schema
           result.new
         elsif result.is_a?(RubyLLM::Schema) || result.respond_to?(:to_json_schema)
           result
         else
-          raise Error, "Schema file must return a RubyLLM::Schema class or instance"
+          raise Error, "Schema file must return a RubyLLM::Schema class or instance. Got: #{result_info}"
         end
       rescue => e
         raise Error, "Failed to load schema from '#{@template_name}/schema.rb': #{e.message}"
