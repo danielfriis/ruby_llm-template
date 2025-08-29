@@ -99,6 +99,9 @@ module RubyLlm
         else
           raise Error, "Schema file must return a RubyLLM::Schema class or instance. Got: #{result_info}"
         end
+      rescue Error => e
+        # Re-raise our own errors as-is to preserve the detailed message
+        raise e
       rescue => e
         raise Error, "Failed to load schema from '#{@template_name}/schema.rb': #{e.message}"
       end
