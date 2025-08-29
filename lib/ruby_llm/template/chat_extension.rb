@@ -24,16 +24,12 @@ module RubyLlm
 
         # Handle schema separately if it exists
         if loader.available_roles.include?("schema")
-          schema_content = loader.render_template("schema", context)
-          if schema_content && !schema_content.strip.empty?
-            # Assume schema content is JSON that should be parsed
-            begin
-              require "json"
-              schema_data = JSON.parse(schema_content.strip)
-              with_schema(schema_data)
-            rescue JSON::ParserError => e
-              raise RubyLlm::Template::Error, "Invalid JSON in schema template: #{e.message}"
-            end
+          schema_result = loader.render_template("schema", context)
+
+          if schema_result&.respond_to?(:to_json_schema)
+            # It's a RubyLLM::Schema instance
+            schema_data = schema_result.to_json_schema
+            with_schema(schema_data)
           end
         end
 

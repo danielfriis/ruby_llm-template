@@ -17,6 +17,7 @@ Add this line to your application's Gemfile:
 
 ```ruby
 gem 'ruby_llm-template'
+gem 'ruby_llm-schema'  # For schema.rb support
 ```
 
 And then execute:
@@ -35,8 +36,8 @@ rails generate ruby_llm_template:install
 
 This will:
 - Create `config/initializers/ruby_llm_template.rb`
-- Create `app/templates/` directory
-- Generate an example template at `app/templates/extract_metadata/`
+- Create `app/prompts/` directory
+- Generate an example template at `app/prompts/extract_metadata/`
 
 ## Quick Start
 
@@ -45,22 +46,22 @@ This will:
 Create a directory structure like this:
 
 ```
-templates/
+prompts/
   extract_metadata/
     ├── system.txt.erb    # System message
     ├── user.txt.erb      # User prompt  
     ├── assistant.txt.erb # Assistant message (optional)
-    └── schema.txt.erb    # JSON schema (optional)
+    └── schema.rb         # RubyLLM::Schema definition (optional)
 ```
 
 ### 2. Write Your Templates
 
-**`templates/extract_metadata/system.txt.erb`**:
+**`prompts/extract_metadata/system.txt.erb`**:
 ```erb
 You are an expert document analyzer. Extract metadata from documents in a structured format.
 ```
 
-**`templates/extract_metadata/user.txt.erb`**:
+**`prompts/extract_metadata/user.txt.erb`**:
 ```erb
 Please analyze this document: <%= document %>
 
@@ -69,17 +70,25 @@ Additional context: <%= additional_context %>
 <% end %>
 ```
 
-**`templates/extract_metadata/schema.txt.erb`**:
-```erb
-{
-  "type": "object",
-  "properties": {
-    "title": {"type": "string"},
-    "topics": {"type": "array", "items": {"type": "string"}},
-    "summary": {"type": "string"}
-  },
-  "required": ["title", "topics", "summary"]
-}
+**`prompts/extract_metadata/schema.rb`**:
+```ruby
+# Using RubyLLM::Schema DSL for clean, type-safe schemas
+RubyLLM::Schema.create do
+  string :title, description: "Document title"
+  array :topics, description: "Main topics" do
+    string
+  end
+  string :summary, description: "Brief summary"
+  
+  # Optional fields with validation
+  number :confidence, required: false, minimum: 0, maximum: 1
+  
+  # Nested objects
+  object :metadata, required: false do
+    string :author
+    string :date, format: "date"
+  end
+end
 ```
 
 ### 3. Use the Template
@@ -107,17 +116,17 @@ RubyLLM.chat
 
 ```ruby
 RubyLlm::Template.configure do |config|
-  config.template_directory = "/path/to/your/templates"
+  config.template_directory = "/path/to/your/prompts"
 end
 ```
 
 ### Rails Applications
 
-The gem automatically configures itself to use `Rails.root.join("app", "templates")`, but you can override this in `config/initializers/ruby_llm_template.rb`:
+The gem automatically configures itself to use `Rails.root.join("app", "prompts")`, but you can override this in `config/initializers/ruby_llm_template.rb`:
 
 ```ruby
 RubyLlm::Template.configure do |config|
-  config.template_directory = Rails.root.join("app", "ai_templates")
+  config.template_directory = Rails.root.join("app", "ai_prompts")
 end
 ```
 
@@ -128,7 +137,7 @@ Each template is a directory containing ERB files for different message roles:
 - **`system.txt.erb`** - System message that sets the AI's behavior
 - **`user.txt.erb`** - User message/prompt  
 - **`assistant.txt.erb`** - Pre-filled assistant message (optional)
-- **`schema.txt.erb`** - JSON schema for structured output (optional)
+- **`schema.rb`** - RubyLLM::Schema definition for structured output (optional)
 
 Templates are processed in order: system → user → assistant → schema
 
@@ -176,28 +185,41 @@ chat = RubyLLM.chat
 chat.ask("What should we focus on first?")
 ```
 
-### Custom Schema Handling
+### Schema Definition with RubyLLM::Schema
 
-The schema template automatically calls `with_schema()` on the chat instance with the parsed JSON:
+The gem integrates with [RubyLLM::Schema](https://github.com/danielfriis/ruby_llm-schema) to provide a clean Ruby DSL for defining JSON schemas. Use `schema.rb` files instead of JSON:
 
-```erb
-{
-  "type": "object",
-  "properties": {
-    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-    "results": {
-      "type": "array",
-      "items": {
-        "type": "object", 
-        "properties": {
-          "item": {"type": "string"},
-          "score": {"type": "number"}
-        }
-      }
-    }
-  }
-}
+```ruby
+# prompts/analyze_results/schema.rb
+RubyLLM::Schema.create do
+  number :confidence, minimum: 0, maximum: 1, description: "Analysis confidence"
+  
+  array :results, description: "Analysis results" do
+    object do
+      string :item, description: "Result item"
+      number :score, minimum: 0, maximum: 100, description: "Item score"
+      
+      # Context variables are available
+      string :category, enum: categories if defined?(categories)
+    end
+  end
+  
+  # Optional nested structures
+  object :metadata, required: false do
+    string :model_version
+    string :timestamp, format: "date-time"
+  end
+end
 ```
+
+**Benefits of `schema.rb`:**
+- 🎯 **Type-safe**: Ruby DSL with built-in validation
+- 🔄 **Dynamic**: Access template context variables for conditional schemas
+- 📝 **Readable**: Clean, self-documenting Ruby syntax vs JSON
+- 🔧 **Flexible**: Generate schemas based on runtime conditions
+- 🚀 **No JSON**: Eliminate error-prone JSON string manipulation
+
+**Schema-Only Approach**: The gem exclusively supports `schema.rb` files with RubyLLM::Schema. If you have a `schema.rb` file but the gem isn't installed, you'll get a clear error message.
 
 ## Error Handling
 
@@ -205,9 +227,11 @@ The gem provides clear error messages for common issues:
 
 ```ruby
 begin
-  RubyLLM.chat.with_template(:nonexistent).complete
+  RubyLLM.chat.with_template(:extract_metadata).complete
 rescue RubyLlm::Template::Error => e
-  puts e.message # "Template 'nonexistent' not found in /path/to/templates"
+  puts e.message 
+  # "Template 'extract_metadata' not found in /path/to/prompts"
+  # "Schema file 'extract_metadata/schema.rb' found but RubyLLM::Schema gem is not installed"
 end
 ```
 

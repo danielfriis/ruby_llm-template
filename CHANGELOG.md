@@ -12,30 +12,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Template management system for RubyLLM with ERB support
 - Configuration system for template directories
 - Support for system, user, assistant, and schema message templates
+- **RubyLLM::Schema Integration**: Support for `schema.rb` files using the RubyLLM::Schema DSL
 - Rails integration with automatic configuration and generator
-- Comprehensive test suite with 28 test cases
+- Comprehensive test suite with 37 test cases
 - Error handling with descriptive messages
 - Documentation and examples
 
 ### Features
 - **Template Organization**: Structure prompts in folders with separate ERB files for each message role
 - **ERB Templating**: Full ERB support with context variables and Ruby logic
+- **Schema Definition**: Use `schema.rb` files with RubyLLM::Schema DSL for type-safe, dynamic schemas
 - **Rails Integration**: Seamless Rails integration with generators and automatic configuration
 - **Configurable**: Set custom template directories per environment
-- **Schema Support**: Automatic JSON schema parsing and application
+- **Schema Support**: Automatic schema loading and application with fallback to JSON
 - **Error Handling**: Clear error messages for common issues
-- **Zero Dependencies**: Only depends on RubyLLM and standard Ruby libraries
+- **Smart Dependencies**: Optional RubyLLM::Schema dependency with graceful fallbacks
+
+### Schema Features
+- **Ruby DSL**: Use RubyLLM::Schema for clean, type-safe schema definitions
+- **Context Variables**: Access template context variables within schema.rb files
+- **Dynamic Schemas**: Generate schemas based on runtime conditions
+- **Schema-Only Approach**: Exclusively supports schema.rb files with clear error messages
+- **No JSON Fallback**: Eliminates error-prone JSON string manipulation
 
 ### Usage
 ```ruby
-# Basic usage
+# Basic usage with schema.rb
 RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
 
-# With context variables
+# Context variables available in both ERB and schema.rb
 RubyLLM.chat.with_template(:extract_metadata, 
   document: @document,
-  additional_context: "Focus on technical details"
+  categories: ["finance", "technology"],
+  max_items: 10
 ).complete
+```
+
+### Template Structure
+```
+prompts/extract_metadata/
+├── system.txt.erb    # System message
+├── user.txt.erb      # User prompt with ERB
+├── assistant.txt.erb # Optional assistant message
+└── schema.rb         # RubyLLM::Schema definition
 ```
 
 ### Rails Setup

@@ -16,10 +16,10 @@ module RubyLlm
       private
 
       def default_template_directory
-        if defined?(Rails)
-          Rails.root.join("app", "templates")
+        if defined?(Rails) && Rails.respond_to?(:root) && Rails.root
+          Rails.root.join("app", "prompts")
         else
-          File.join(Dir.pwd, "templates")
+          File.join(Dir.pwd, "prompts")
         end
       end
     end

@@ -8,7 +8,7 @@ RSpec.describe RubyLlm::Template::Configuration do
   describe "#template_directory" do
     context "when not set" do
       it "returns default directory" do
-        expect(config.template_directory).to eq(File.join(Dir.pwd, "templates"))
+        expect(config.template_directory).to eq(File.join(Dir.pwd, "prompts"))
       end
     end
 
@@ -21,11 +21,11 @@ RSpec.describe RubyLlm::Template::Configuration do
 
     context "when Rails is defined" do
       before do
-        stub_const("Rails", double("Rails", root: double("Root", join: "/rails/app/templates")))
+        stub_const("Rails", double("Rails", root: double("Root", join: "/rails/app/prompts")))
       end
 
       it "returns Rails default directory" do
-        expect(config.template_directory).to eq("/rails/app/templates")
+        expect(config.template_directory).to eq("/rails/app/prompts")
       end
     end
   end

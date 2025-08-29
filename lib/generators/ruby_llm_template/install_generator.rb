@@ -16,17 +16,17 @@ module RubyLlmTemplate
           # frozen_string_literal: true
 
           RubyLlm::Template.configure do |config|
-            # Set the directory where your templates are stored
-            # Default: Rails.root.join("app", "templates")
-            # config.template_directory = Rails.root.join("app", "templates")
+                      # Set the directory where your prompts are stored
+          # Default: Rails.root.join("app", "prompts")
+          # config.template_directory = Rails.root.join("app", "prompts")
           end
         RUBY
       end
 
       def create_template_directory
-        empty_directory "app/templates"
+        empty_directory "app/prompts"
 
-        create_file "app/templates/.keep", ""
+        create_file "app/prompts/.keep", ""
 
         # Create an example template
         create_example_template
@@ -37,18 +37,18 @@ module RubyLlmTemplate
           
           RubyLLM Template has been installed!
           
-          Template directory: app/templates/
+          Prompts directory: app/prompts/
           Configuration: config/initializers/ruby_llm_template.rb
           
           Example usage:
             RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
           
           Template structure:
-            app/templates/extract_metadata/
+            app/prompts/extract_metadata/
               ├── system.txt.erb    # System message
               ├── user.txt.erb      # User prompt
               ├── assistant.txt.erb # Assistant message (optional)
-              └── schema.txt.erb    # JSON schema (optional)
+              └── schema.rb         # RubyLLM::Schema definition (optional)
           
           Get started by creating your first template!
         MESSAGE
@@ -57,7 +57,7 @@ module RubyLlmTemplate
       private
 
       def create_example_template
-        example_dir = "app/templates/extract_metadata"
+        example_dir = "app/prompts/extract_metadata"
         empty_directory example_dir
 
         create_file "#{example_dir}/system.txt.erb", <<~ERB
@@ -86,49 +86,31 @@ module RubyLlmTemplate
           <% end %>
         ERB
 
-        create_file "#{example_dir}/schema.txt.erb", <<~ERB
-          {
-            "type": "object",
-            "properties": {
-              "document_type": {
-                "type": "string",
-                "description": "The type of document (e.g., report, article, email)"
-              },
-              "key_topics": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "Main topics discussed in the document"
-              },
-              "important_dates": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "description": "Significant dates mentioned in the document"
-              },
-              "entities": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": ["person", "organization", "location", "other"]
-                    }
-                  }
-                },
-                "description": "Named entities found in the document"
-              }
-            },
-            "required": ["document_type", "key_topics"]
-          }
-        ERB
+        create_file "#{example_dir}/schema.rb", <<~RUBY
+          # frozen_string_literal: true
+
+          # Schema definition using RubyLLM::Schema DSL
+          # See: https://github.com/danielfriis/ruby_llm-schema
+
+          RubyLLM::Schema.create do
+            string :document_type, description: "The type of document (e.g., report, article, email)"
+            
+            array :key_topics, description: "Main topics discussed in the document" do
+              string
+            end
+            
+            array :important_dates, required: false, description: "Significant dates mentioned in the document" do
+              string format: "date"
+            end
+            
+            array :entities, required: false, description: "Named entities found in the document" do
+              object do
+                string :name
+                string :type, enum: ["person", "organization", "location", "other"]
+              end
+            end
+          end
+        RUBY
       end
     end
   end

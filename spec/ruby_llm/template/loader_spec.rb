@@ -12,8 +12,7 @@ RSpec.describe RubyLlm::Template::Loader do
       before do
         create_test_template(template_name, {
           system: "You are a helpful assistant.",
-          user: "Hello, <%= name %>! How are you today?",
-          schema: '{"type": "object"}'
+          user: "Hello, <%= name %>! How are you today?"
         })
       end
 
@@ -26,17 +25,64 @@ RSpec.describe RubyLlm::Template::Loader do
         result = loader.render_template("user", name: "Alice")
         expect(result).to eq("Hello, Alice! How are you today?")
       end
-
-      it "renders schema template" do
-        result = loader.render_template("schema")
-        expect(result).to eq('{"type": "object"}')
-      end
     end
 
     context "when template file does not exist" do
       it "returns nil" do
         result = loader.render_template("nonexistent")
         expect(result).to be_nil
+      end
+    end
+
+    context "when schema.rb file exists" do
+      before do
+        # Mock RubyLLM::Schema availability
+        stub_const("RubyLLM::Schema", Class.new do
+          def self.create(&block)
+            schema_instance = new
+            schema_instance.instance_eval(&block) if block_given?
+            schema_instance
+          end
+
+          def initialize
+            @properties = {}
+          end
+
+          def string(name, **options)
+            @properties[name] = {type: "string"}.merge(options)
+          end
+
+          def to_json_schema
+            {
+              type: "object",
+              properties: @properties,
+              required: @properties.keys
+            }
+          end
+        end)
+
+        schema_content = <<~RUBY
+          RubyLLM::Schema.create do
+            string :name, description: "Person's name"
+            string :email, description: "Email address"
+          end
+        RUBY
+
+        create_test_template(template_name, {})
+        File.write(File.join(template_directory, template_name, "schema.rb"), schema_content)
+      end
+
+      it "loads and returns schema instance" do
+        result = loader.render_template("schema")
+        expect(result).to respond_to(:to_json_schema)
+
+        schema_data = result.to_json_schema
+        expect(schema_data[:type]).to eq("object")
+        expect(schema_data[:properties]).to include(:name, :email)
+      end
+
+      it "includes schema in available_roles" do
+        expect(loader.available_roles).to include("schema")
       end
     end
 
@@ -76,6 +122,31 @@ RSpec.describe RubyLlm::Template::Loader do
 
       it "returns only supported roles" do
         expect(loader.available_roles).to contain_exactly("system", "user")
+      end
+    end
+
+    context "when template directory has schema.txt.erb file" do
+      before do
+        create_test_template(template_name, {
+          system: "System content",
+          schema: '{"type": "object"}'
+        })
+      end
+
+      it "excludes schema.txt.erb from available roles" do
+        expect(loader.available_roles).to contain_exactly("system")
+        expect(loader.available_roles).not_to include("schema")
+      end
+    end
+
+    context "when template directory has schema.rb file" do
+      before do
+        create_test_template(template_name, {system: "System content"})
+        File.write(File.join(template_directory, template_name, "schema.rb"), "# Schema")
+      end
+
+      it "includes schema in available roles" do
+        expect(loader.available_roles).to contain_exactly("system", "schema")
       end
     end
 
