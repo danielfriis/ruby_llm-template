@@ -9,7 +9,7 @@ A flexible template management system for [RubyLLM](https://github.com/crmne/rub
 - ⚙️ **Configurable**: Set custom template directories per environment
 - 🚀 **Rails Integration**: Seamless Rails integration with generators and automatic configuration
 - 🧪 **Well Tested**: Comprehensive test suite ensuring reliability
-- 📦 **Zero Dependencies**: Only depends on RubyLLM and standard Ruby libraries
+- 📦 **Minimal Dependencies**: Only depends on RubyLLM and standard Ruby libraries
 
 ## Installation
 
