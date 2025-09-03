@@ -4,7 +4,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/danielfriis/ruby_llm-template/blob/main/LICENSE.txt)
 [![CI](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml/badge.svg)](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml)
 
-Use templates with [RubyLLM](https://github.com/crmne/ruby_llm).
+Organize prompts into easy-to-use templates for [RubyLLM](https://github.com/crmne/ruby_llm).
 
 ```ruby
 chat = RubyLLM.chat
