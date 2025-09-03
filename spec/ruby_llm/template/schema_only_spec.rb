@@ -5,10 +5,10 @@ require "spec_helper"
 RSpec.describe "Schema-only Support" do
   let(:template_name) { "test_template" }
   let(:template_directory) { @tmpdir }
-  let(:loader) { RubyLlm::Template::Loader.new(template_name, template_directory: template_directory) }
+  let(:loader) { RubyLLM::Template::Loader.new(template_name, template_directory: template_directory) }
 
   before do
-    RubyLlm::Template.configure do |config|
+    RubyLLM::Template.configure do |config|
       config.template_directory = template_directory
     end
   end
@@ -33,7 +33,7 @@ RSpec.describe "Schema-only Support" do
       expect {
         loader.render_template("schema")
       }.to raise_error(
-        RubyLlm::Template::Error,
+        RubyLLM::Template::Error,
         /Schema file 'test_template\/schema.rb' found but RubyLLM::Schema gem is not installed/
       )
     end
@@ -70,7 +70,7 @@ RSpec.describe "Schema-only Support" do
     let(:chat_double) { double("Chat") }
 
     before do
-      chat_double.extend(RubyLlm::Template::ChatExtension)
+      chat_double.extend(RubyLLM::Template::ChatExtension)
     end
 
     context "when schema.rb exists but gem not installed" do
@@ -90,7 +90,7 @@ RSpec.describe "Schema-only Support" do
         expect {
           chat_double.with_template(template_name.to_sym)
         }.to raise_error(
-          RubyLlm::Template::Error,
+          RubyLLM::Template::Error,
           /Schema file.*found but RubyLLM::Schema gem is not installed/
         )
       end

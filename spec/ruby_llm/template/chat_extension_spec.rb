@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-RSpec.describe RubyLlm::Template::ChatExtension do
+RSpec.describe RubyLLM::Template::ChatExtension do
   let(:chat_double) { double("Chat") }
   let(:template_directory) { @tmpdir }
 
   before do
     chat_double.extend(described_class)
 
-    RubyLlm::Template.configure do |config|
+    RubyLLM::Template.configure do |config|
       config.template_directory = template_directory
     end
   end
@@ -120,13 +120,13 @@ RSpec.describe RubyLlm::Template::ChatExtension do
       it "raises an error" do
         expect {
           chat_double.with_template(:nonexistent_template)
-        }.to raise_error(RubyLlm::Template::Error, /Template 'nonexistent_template' not found/)
+        }.to raise_error(RubyLLM::Template::Error, /Template 'nonexistent_template' not found/)
       end
     end
 
     context "when template directory is not configured" do
       before do
-        RubyLlm::Template.configure do |config|
+        RubyLLM::Template.configure do |config|
           config.template_directory = "/nonexistent/path"
         end
       end
@@ -134,7 +134,7 @@ RSpec.describe RubyLlm::Template::ChatExtension do
       it "raises an error" do
         expect {
           chat_double.with_template(:any_template)
-        }.to raise_error(RubyLlm::Template::Error, /Template 'any_template' not found/)
+        }.to raise_error(RubyLLM::Template::Error, /Template 'any_template' not found/)
       end
     end
   end

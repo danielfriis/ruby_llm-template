@@ -5,10 +5,10 @@ require "spec_helper"
 RSpec.describe "Schema Integration" do
   let(:template_name) { "test_template" }
   let(:template_directory) { @tmpdir }
-  let(:loader) { RubyLlm::Template::Loader.new(template_name, template_directory: template_directory) }
+  let(:loader) { RubyLLM::Template::Loader.new(template_name, template_directory: template_directory) }
 
   before do
-    RubyLlm::Template.configure do |config|
+    RubyLLM::Template.configure do |config|
       config.template_directory = template_directory
     end
   end
@@ -140,7 +140,7 @@ RSpec.describe "Schema Integration" do
         expect {
           loader.render_template("schema")
         }.to raise_error(
-          RubyLlm::Template::Error,
+          RubyLLM::Template::Error,
           /Schema file.*found but RubyLLM::Schema gem is not installed/
         )
       end
@@ -151,7 +151,7 @@ RSpec.describe "Schema Integration" do
     let(:chat_double) { double("Chat") }
 
     before do
-      chat_double.extend(RubyLlm::Template::ChatExtension)
+      chat_double.extend(RubyLLM::Template::ChatExtension)
     end
 
     context "with schema.rb file" do

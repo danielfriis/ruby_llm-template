@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe RubyLlm::Template::Loader do
+RSpec.describe RubyLLM::Template::Loader do
   let(:template_name) { "test_template" }
   let(:template_directory) { @tmpdir }
   let(:loader) { described_class.new(template_name, template_directory: template_directory) }
@@ -105,7 +105,7 @@ RSpec.describe RubyLlm::Template::Loader do
       it "raises an error with descriptive message" do
         expect {
           loader.render_template("system")
-        }.to raise_error(RubyLlm::Template::Error, /Failed to render template/)
+        }.to raise_error(RubyLLM::Template::Error, /Failed to render template/)
       end
     end
   end

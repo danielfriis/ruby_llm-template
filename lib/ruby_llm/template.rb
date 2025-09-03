@@ -13,7 +13,7 @@ rescue LoadError
   # Rails not available
 end
 
-module RubyLlm
+module RubyLLM
   module Template
     class Error < StandardError; end
 
@@ -41,7 +41,7 @@ begin
 
     module RubyLLMChatTemplateExtension
       def self.extended(base)
-        base.extend(RubyLlm::Template::ChatExtension)
+        base.extend(RubyLLM::Template::ChatExtension)
       end
     end
 
@@ -49,7 +49,7 @@ begin
     module RubyLLMTemplateHook
       def chat(*args, **kwargs)
         chat_instance = super
-        chat_instance.extend(RubyLlm::Template::ChatExtension)
+        chat_instance.extend(RubyLLM::Template::ChatExtension)
         chat_instance
       end
     end

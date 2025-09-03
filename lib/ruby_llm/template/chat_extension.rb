@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module RubyLlm
+module RubyLLM
   module Template
     module ChatExtension
       def with_template(template_name, context = {})
-        loader = RubyLlm::Template::Loader.new(template_name)
+        loader = RubyLLM::Template::Loader.new(template_name)
 
         unless loader.template_exists?
-          raise RubyLlm::Template::Error, "Template '#{template_name}' not found in #{RubyLlm::Template.configuration.template_directory}"
+          raise RubyLLM::Template::Error, "Template '#{template_name}' not found in #{RubyLLM::Template.configuration.template_directory}"
         end
 
         # Apply templates in a specific order to maintain conversation flow

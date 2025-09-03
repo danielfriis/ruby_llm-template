@@ -136,7 +136,7 @@ RubyLLM.chat
 ### Non-Rails Applications
 
 ```ruby
-RubyLlm::Template.configure do |config|
+RubyLLM::Template.configure do |config|
   config.template_directory = "/path/to/your/prompts"
 end
 ```
@@ -146,7 +146,7 @@ end
 The gem automatically configures itself to use `Rails.root.join("app", "prompts")`, but you can override this in `config/initializers/ruby_llm_template.rb`:
 
 ```ruby
-RubyLlm::Template.configure do |config|
+RubyLLM::Template.configure do |config|
   config.template_directory = Rails.root.join("app", "ai_prompts")
 end
 ```
@@ -249,7 +249,7 @@ The gem provides clear error messages for common issues:
 ```ruby
 begin
   RubyLLM.chat.with_template(:extract_metadata).complete
-rescue RubyLlm::Template::Error => e
+rescue RubyLLM::Template::Error => e
   puts e.message 
   # "Template 'extract_metadata' not found in /path/to/prompts"
   # "Schema file 'extract_metadata/schema.rb' found but RubyLLM::Schema gem is not installed"

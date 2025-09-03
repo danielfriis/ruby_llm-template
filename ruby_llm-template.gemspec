@@ -4,7 +4,7 @@ require_relative "lib/ruby_llm/template/version"
 
 Gem::Specification.new do |spec|
   spec.name = "ruby_llm-template"
-  spec.version = RubyLlm::Template::VERSION
+  spec.version = RubyLLM::Template::VERSION
   spec.authors = ["Daniel Friis"]
   spec.email = ["d@friis.me"]
 

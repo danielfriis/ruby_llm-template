@@ -23,12 +23,12 @@ RSpec.configure do |config|
       example.run
     end
   ensure
-    RubyLlm::Template.reset_configuration!
+    RubyLLM::Template.reset_configuration!
   end
 
   config.before(:each) do
     # Reset configuration before each test
-    RubyLlm::Template.reset_configuration!
+    RubyLLM::Template.reset_configuration!
   end
 end
 

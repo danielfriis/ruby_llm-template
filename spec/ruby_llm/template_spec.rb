@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-RSpec.describe RubyLlm::Template do
+RSpec.describe RubyLLM::Template do
   it "has a version number" do
-    expect(RubyLlm::Template::VERSION).not_to be nil
+    expect(RubyLLM::Template::VERSION).not_to be nil
   end
 
   describe ".configuration" do
     it "returns a configuration instance" do
-      expect(described_class.configuration).to be_a(RubyLlm::Template::Configuration)
+      expect(described_class.configuration).to be_a(RubyLLM::Template::Configuration)
     end
 
     it "returns the same instance on multiple calls" do

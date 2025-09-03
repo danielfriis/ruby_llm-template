@@ -1,4 +1,4 @@
-module RubyLlm
+module RubyLLM
   module Template
     VERSION: String
     # See the writing guide of rbs: https://github.com/ruby/rbs#guides

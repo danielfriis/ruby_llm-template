@@ -7,7 +7,7 @@
 require_relative "../lib/ruby_llm/template"
 
 # Configure template directory
-RubyLlm::Template.configure do |config|
+RubyLLM::Template.configure do |config|
   config.template_directory = File.join(__dir__, "prompts")
 end
 
@@ -91,7 +91,7 @@ puts "=" * 40
 
 # Mock chat object that demonstrates the extension
 class MockChat
-  include RubyLlm::Template::ChatExtension
+  include RubyLLM::Template::ChatExtension
 
   def initialize
     @messages = []
@@ -135,7 +135,7 @@ begin
     document: "Q3 Financial Report: Revenue increased 15% to $2.3M. Key challenges include supply chain delays affecting Q4 projections.",
     additional_context: "Focus on financial metrics and future outlook",
     focus_areas: ["revenue", "challenges", "projections"]).complete
-rescue RubyLlm::Template::Error => e
+rescue RubyLLM::Template::Error => e
   puts "❌ Error: #{e.message}"
 end
 

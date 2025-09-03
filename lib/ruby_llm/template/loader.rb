@@ -9,14 +9,14 @@ rescue LoadError
   # RubyLLM::Schema not available, schema.rb files won't work
 end
 
-module RubyLlm
+module RubyLLM
   module Template
     class Loader
       SUPPORTED_ROLES = %w[system user assistant schema].freeze
 
       def initialize(template_name, template_directory: nil)
         @template_name = template_name.to_s
-        @template_directory = Pathname.new(template_directory || RubyLlm::Template.configuration.template_directory)
+        @template_directory = Pathname.new(template_directory || RubyLLM::Template.configuration.template_directory)
         @template_path = @template_directory.join(@template_name)
       end
 

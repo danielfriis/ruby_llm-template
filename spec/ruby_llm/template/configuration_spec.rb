@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe RubyLlm::Template::Configuration do
+RSpec.describe RubyLLM::Template::Configuration do
   subject(:config) { described_class.new }
 
   describe "#template_directory" do

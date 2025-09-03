@@ -2,7 +2,7 @@
 
 require "rails/generators"
 
-module RubyLlmTemplate
+module RubyLLMTemplate
   module Generators
     class InstallGenerator < Rails::Generators::Base
       desc "Install RubyLLM Template system"
@@ -15,7 +15,7 @@ module RubyLlmTemplate
         create_file "config/initializers/ruby_llm_template.rb", <<~RUBY
           # frozen_string_literal: true
 
-          RubyLlm::Template.configure do |config|
+          RubyLLM::Template.configure do |config|
                       # Set the directory where your prompts are stored
           # Default: Rails.root.join("app", "prompts")
           # config.template_directory = Rails.root.join("app", "prompts")
