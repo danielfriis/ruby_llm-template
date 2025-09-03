@@ -4,10 +4,11 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/danielfriis/ruby_llm-template/blob/main/LICENSE.txt)
 [![CI](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml/badge.svg)](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml)
 
-A flexible template management system for [RubyLLM](https://github.com/crmne/ruby_llm) that allows you to organize and reuse ERB templates.
+Use templates with [RubyLLM](https://github.com/crmne/ruby_llm).
 
 ```ruby
-RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
+chat = RubyLLM.chat
+chat.with_template(:extract_metadata, document: @document).complete
 
 # ----------------------------------
 # Retrieves the following files:
