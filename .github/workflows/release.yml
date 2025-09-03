@@ -37,6 +37,12 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
+          cache-version: 1  # Increment this when you need to bust cache
+
+      - name: Install dependencies
+        run: |
+          bundle config set --local deployment false
+          bundle install
 
       - name: Configure Git
         run: |
