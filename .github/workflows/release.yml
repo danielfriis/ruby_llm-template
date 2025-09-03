@@ -1,0 +1,101 @@
+name: Release & Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.1)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update version (manual release)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Updating version to ${{ github.event.inputs.version }}"
+          sed -i 's/VERSION = ".*"/VERSION = "${{ github.event.inputs.version }}"/' lib/ruby_llm/template/version.rb
+          git add lib/ruby_llm/template/version.rb
+          git commit -m "Bump version to ${{ github.event.inputs.version }}"
+          git tag "v${{ github.event.inputs.version }}"
+          git push origin main
+          git push origin "v${{ github.event.inputs.version }}"
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build gem
+        run: |
+          gem build *.gemspec
+          echo "GEM_FILE=$(ls *.gem)" >> $GITHUB_ENV
+
+      - name: Publish to RubyGems
+        env:
+          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
+        run: |
+          mkdir -p ~/.gem
+          echo ":rubygems_api_key: $RUBYGEMS_AUTH_TOKEN" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem push ${{ env.GEM_FILE }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          files: ${{ env.GEM_FILE }}
+          body: |
+            ## Installation
+            
+            ```bash
+            gem install ruby_llm-template -v ${{ steps.version.outputs.version }}
+            ```
+            
+            Or add to your Gemfile:
+            
+            ```ruby
+            gem 'ruby_llm-template', '~> ${{ steps.version.outputs.version }}'
+            ```
