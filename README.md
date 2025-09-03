@@ -1,6 +1,19 @@
 # RubyLLM::Template
 
-A flexible template management system for [RubyLLM](https://github.com/crmne/ruby_llm) that allows you to organize and reuse ERB templates for AI chat interactions.
+A flexible template management system for [RubyLLM](https://github.com/crmne/ruby_llm) that allows you to organize and reuse ERB templates.
+
+```ruby
+RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
+
+# Retrieves the following files:
+# prompts/
+#   extract_metadata/
+#     ├── system.txt.erb    # System message
+#     ├── user.txt.erb      # User prompt  
+#     ├── assistant.txt.erb # Assistant message (optional)
+#     └── schema.rb         # RubyLLM::Schema definition (optional)
+
+```
 
 ## Features
 
@@ -16,8 +29,9 @@ A flexible template management system for [RubyLLM](https://github.com/crmne/rub
 Add this line to your application's Gemfile:
 
 ```ruby
+gem 'ruby_llm'
 gem 'ruby_llm-template'
-gem 'ruby_llm-schema'  # For schema.rb support
+gem 'ruby_llm-schema'  # Optional for schema.rb support
 ```
 
 And then execute:
