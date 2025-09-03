@@ -117,14 +117,12 @@ end
 ```ruby
 chat = RubyLLM.chat
 chat.with_template(:extract_metadata, document: @document, additional_context: "Focus on technical details").complete
-```
 
-Under the hood, RubyLLM::Template will render the templates with the context variables and apply them to the chat instance using native RubyLLM methods:
+# Under the hood, RubyLLM::Template will render the templates with the context variables and apply them to the chat instance using native RubyLLM methods:
 
-```ruby  
-chat.add_message(:system, rendered_system_message)
-chat.add_message(:user, rendered_user_message)
-chat.add_schema(instantiated_schema)
+# chat.add_message(:system, rendered_system_message)
+# chat.add_message(:user, rendered_user_message)
+# chat.add_schema(instantiated_schema)
 ```
 
 
