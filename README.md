@@ -1,5 +1,9 @@
 # RubyLLM::Template
 
+[![Gem Version](https://badge.fury.io/rb/ruby_llm-template.svg)](https://rubygems.org/gems/ruby_llm-template)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/danielfriis/ruby_llm-template/blob/main/LICENSE.txt)
+[![CI](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml/badge.svg)](https://github.com/danielfriis/ruby_llm-template/actions/workflows/ci.yml)
+
 A flexible template management system for [RubyLLM](https://github.com/crmne/ruby_llm) that allows you to organize and reuse ERB templates.
 
 ```ruby
