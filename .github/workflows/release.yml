@@ -36,13 +36,13 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
-          cache-version: 1  # Increment this when you need to bust cache
+          bundler-cache: false  # Disable cache for release workflow
+
+      - name: Configure Bundler for release
+        run: bundle config set --local deployment false
 
       - name: Install dependencies
-        run: |
-          bundle config set --local deployment false
-          bundle install
+        run: bundle install
 
       - name: Configure Git
         run: |
@@ -54,7 +54,12 @@ jobs:
         run: |
           echo "Updating version to ${{ github.event.inputs.version }}"
           sed -i 's/VERSION = ".*"/VERSION = "${{ github.event.inputs.version }}"/' lib/ruby_llm/template/version.rb
-          git add lib/ruby_llm/template/version.rb
+          
+          # Update Gemfile.lock to reflect the new version
+          bundle install
+          
+          # Commit both the version file and the updated lock file
+          git add lib/ruby_llm/template/version.rb Gemfile.lock
           git commit -m "Bump version to ${{ github.event.inputs.version }}"
           git tag "v${{ github.event.inputs.version }}"
           git push origin main
