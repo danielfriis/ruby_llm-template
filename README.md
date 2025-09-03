@@ -115,21 +115,18 @@ end
 ### 3. Use the Template
 
 ```ruby
-# Basic usage
-RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
-
-# With context variables
-RubyLLM.chat.with_template(:extract_metadata, 
-  document: @document,
-  additional_context: "Focus on technical details"
-).complete
-
-# Chaining with other RubyLLM methods
-RubyLLM.chat
-  .with_template(:extract_metadata, document: @document)
-  .with_model("gpt-4")
-  .complete
+chat = RubyLLM.chat
+chat.with_template(:extract_metadata, document: @document, additional_context: "Focus on technical details").complete
 ```
+
+Under the hood, RubyLLM::Template will render the templates with the context variables and apply them to the chat instance using native RubyLLM methods:
+
+```ruby  
+chat.add_message(:system, rendered_system_message)
+chat.add_message(:user, rendered_user_message)
+chat.add_schema(instantiated_schema)
+```
+
 
 ## Configuration
 
@@ -166,7 +163,13 @@ Templates are processed in order: system → user → assistant → schema
 
 All context variables passed to `with_template` are available in your ERB templates:
 
+```ruby
+chat = RubyLLM.chat
+chat.with_template(:message, name: "Alice", urgent: true, documents: @documents)
+```
+
 ```erb
+<!-- /prompts/message/user.txt.erb -->
 Hello <%= name %>!
 
 <% if urgent %>
