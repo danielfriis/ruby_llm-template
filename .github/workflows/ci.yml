@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_call:  # Add this line to make it reusable
 
 jobs:
   test:
@@ -27,9 +28,8 @@ jobs:
       - name: Run tests
         run: bundle exec rspec
 
-      - name: Run RuboCop (if you add it)
-        run: bundle exec rubocop
-        continue-on-error: true
+      - name: Run Standard
+        run: bundle exec standardrb
 
   security:
     runs-on: ubuntu-latest
