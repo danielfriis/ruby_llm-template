@@ -25,7 +25,7 @@ module RubyLlm
         # Handle schema separately if it exists
         if loader.available_roles.include?("schema")
           schema_result = loader.render_template("schema", context)
-          
+
           if schema_result
             if schema_result.respond_to?(:to_json_schema)
               # It's a RubyLLM::Schema instance

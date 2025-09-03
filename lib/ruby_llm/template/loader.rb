@@ -86,9 +86,9 @@ module RubyLlm
         end
 
         # 2. Class definition pattern - look for TemplateClass::Schema
-        template_class_name = @template_name.to_s.split('_').map(&:capitalize).join
+        template_class_name = @template_name.to_s.split("_").map(&:capitalize).join
         schema_class_name = "#{template_class_name}::Schema"
-        
+
         schema_class = constantize_safe(schema_class_name)
         return schema_class if schema_class
 

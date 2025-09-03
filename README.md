@@ -5,8 +5,9 @@ A flexible template management system for [RubyLLM](https://github.com/crmne/rub
 ```ruby
 RubyLLM.chat.with_template(:extract_metadata, document: @document).complete
 
-# Searches for the following files:
-# 
+# ----------------------------------
+# Retrieves the following files:
+# ----------------------------------
 # prompts/
 #   extract_metadata/
 #     ├── system.txt.erb    # System message
