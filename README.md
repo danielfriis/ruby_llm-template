@@ -7,12 +7,6 @@
 Organize prompts into easy-to-use templates for [RubyLLM](https://github.com/crmne/ruby_llm).
 
 ```ruby
-chat = RubyLLM.chat
-chat.with_template(:extract_metadata, document: @document).complete
-
-# ----------------------------------
-# Retrieves the following files:
-# ----------------------------------
 # prompts/
 #   extract_metadata/
 #     ├── system.txt.erb    # System message
@@ -20,6 +14,8 @@ chat.with_template(:extract_metadata, document: @document).complete
 #     ├── assistant.txt.erb # Assistant message (optional)
 #     └── schema.rb         # RubyLLM::Schema definition (optional)
 
+chat = RubyLLM.chat
+chat.with_template(:extract_metadata, document: @document).complete
 ```
 
 ## Features
