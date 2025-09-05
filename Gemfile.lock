@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ruby_llm-template (0.1.5)
+    ruby_llm-template (0.1.6)
       ruby_llm (>= 1.0)
       ruby_llm-schema (>= 0.2.0)
 
