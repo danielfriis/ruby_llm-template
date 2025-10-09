@@ -14,6 +14,17 @@ module RubyLLM
           config.template_directory ||= app.root.join("app", "prompts")
         end
       end
+
+      initializer "ruby_llm_template.active_record" do
+        if defined?(RubyLLM::ActiveRecord::ChatMethods)
+          RubyLLM::ActiveRecord::ChatMethods.module_eval do
+            def with_template(...)
+              to_llm.with_template(...)
+              self
+            end
+          end
+        end
+      end
     end
   end
 end
