@@ -7,12 +7,13 @@
 Organize prompts into easy-to-use templates for [RubyLLM](https://github.com/crmne/ruby_llm).
 
 ```ruby
-# prompts/
-#   extract_metadata/
-#     ├── system.txt.erb    # System message
-#     ├── user.txt.erb      # User prompt  
-#     ├── assistant.txt.erb # Assistant message (optional)
-#     └── schema.rb         # RubyLLM::Schema definition (optional)
+# app/
+#   prompts/
+#     extract_metadata/
+#       ├── system.txt.erb    # System message
+#       ├── user.txt.erb      # User prompt
+#       ├── assistant.txt.erb # Assistant message (optional)
+#       └── schema.rb         # RubyLLM::Schema definition (optional)
 
 chat = RubyLLM.chat
 chat.with_template(:extract_metadata, document: @document).complete
@@ -63,22 +64,23 @@ This will:
 Create a directory structure like this:
 
 ```
-prompts/
-  extract_metadata/
-    ├── system.txt.erb    # System message
-    ├── user.txt.erb      # User prompt  
-    ├── assistant.txt.erb # Assistant message (optional)
-    └── schema.rb         # RubyLLM::Schema definition (optional)
+app/
+  prompts/
+    extract_metadata/
+      ├── system.txt.erb    # System message
+      ├── user.txt.erb      # User prompt
+      ├── assistant.txt.erb # Assistant message (optional)
+      └── schema.rb         # RubyLLM::Schema definition (optional)
 ```
 
 ### 2. Write Your Templates
 
-**`prompts/extract_metadata/system.txt.erb`**:
+**`app/prompts/extract_metadata/system.txt.erb`**:
 ```erb
 You are an expert document analyzer. Extract metadata from documents in a structured format.
 ```
 
-**`prompts/extract_metadata/user.txt.erb`**:
+**`app/prompts/extract_metadata/user.txt.erb`**:
 ```erb
 Please analyze this document: <%= document %>
 
@@ -87,7 +89,7 @@ Additional context: <%= additional_context %>
 <% end %>
 ```
 
-**`prompts/extract_metadata/schema.rb`**:
+**`app/prompts/extract_metadata/schema.rb`**:
 ```ruby
 # Using RubyLLM::Schema DSL for clean, type-safe schemas
 RubyLLM::Schema.create do
@@ -164,7 +166,7 @@ chat.with_template(:message, name: "Alice", urgent: true, documents: @documents)
 ```
 
 ```erb
-<!-- /prompts/message/user.txt.erb -->
+<!-- app/prompts/message/user.txt.erb -->
 Hello <%= name %>!
 
 <% if urgent %>
@@ -209,7 +211,7 @@ chat.ask("What should we focus on first?")
 The gem integrates with [RubyLLM::Schema](https://github.com/danielfriis/ruby_llm-schema) to provide a clean Ruby DSL for defining JSON schemas. Use `schema.rb` files instead of JSON:
 
 ```ruby
-# prompts/analyze_results/schema.rb
+# app/prompts/analyze_results/schema.rb
 RubyLLM::Schema.create do
   number :confidence, minimum: 0, maximum: 1, description: "Analysis confidence"
   
